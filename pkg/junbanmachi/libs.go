@@ -7,6 +7,7 @@ func pushRequest2Packet(pushRequest *PushRequest) *Packet {
 		Domain:   pushRequest.Domain,
 		URI:      pushRequest.URI,
 		Method:   pushRequest.Method,
+		//Service:  pushRequest.Domain, // thêm service để phân loại queue
 		Headers:  make([]*PushRequest_HeaderSchema, 0),
 	}
 

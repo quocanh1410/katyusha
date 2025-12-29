@@ -11,4 +11,5 @@ func (q *ExtraQueue) SortAlgorithm(p *Packet) {
 	})
 
 	q.Queue = append([]*Packet{p}, q.Queue...)
+	//q.Queues[p.Service] = append([]*Packet{p}, q.Queues[p.Service]...)
 }

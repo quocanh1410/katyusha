@@ -10,7 +10,7 @@ REDBGR='\033[0;41m'
 NCBGR='\033[0m'
 
 ########## CONFIG ##########
-DOCKER_REGISTRY="bonavadeur"
+DOCKER_REGISTRY="risky14"
 IMAGE="katyusha" # docker.io/{DOCKER_REGISTRY}/{IMAGE}
 NAMESPACE="knative-serving"
 component="activator"
@@ -42,25 +42,25 @@ dockerBuild() {
     docker save -o $IMAGE.tar $DOCKER_REGISTRY/$IMAGE:dev
 
     if [ "$mode" == "mnode" ]; then
-        scp $IMAGE.tar node2:~/
-        scp $IMAGE.tar node3:~/
+        scp $IMAGE.tar vm-cloud@192.168.122.100:~/
+        scp $IMAGE.tar vm-edge@192.168.122.120:~/
     fi
 
     sudo crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev
     sudo ctr -n=k8s.io images import $IMAGE.tar
     if [ "$mode" == "mnode" ]; then
-        ssh node2 "crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev"
-        ssh node2 "ctr -n=k8s.io images import $IMAGE.tar"
-        ssh node3 "crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev"
-        ssh node3 "ctr -n=k8s.io images import $IMAGE.tar"
+        echo "1" |ssh vm-cloud@192.168.122.100 "sudo -S crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev"
+        echo "1" |ssh vm-cloud@192.168.122.100 "sudo -S ctr -n=k8s.io images import $IMAGE.tar"
+        echo "1" |ssh vm-edge@192.168.122.120 "sudo -S crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev"
+        echo "1" |ssh vm-edge@192.168.122.120 "sudo -S ctr -n=k8s.io images import $IMAGE.tar"
     fi
 
     logStage "Clean up"
     rm -rf ./$IMAGE
     rm -rf $IMAGE.tar
     if [ "$mode" == "mnode" ]; then
-        ssh node2 "rm -rf $IMAGE.tar"
-        ssh node3 "rm -rf $IMAGE.tar"
+        ssh vm-cloud@192.168.122.100 "rm -rf $IMAGE.tar"
+        ssh vm-edge@192.168.122.120 "rm -rf $IMAGE.tar"
     fi
 }
 

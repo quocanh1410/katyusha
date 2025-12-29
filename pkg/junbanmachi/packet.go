@@ -6,5 +6,6 @@ type Packet struct {
 	Domain   string
 	URI      string
 	Method   string
+	//Service string
 	Headers  []*PushRequest_HeaderSchema
 }

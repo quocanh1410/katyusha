@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	bonalib.Log("Konnichiwa, Katyusha-sama desu")
+	bonalib.Log("Konnichiwa, Katyusha-sama desu quocanh")
 	ctx := context.Background()
 
 	// do something here ...

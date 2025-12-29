@@ -10,6 +10,7 @@ import (
 
 type ExtraQueue struct {
 	Queue           []*Packet
+	//Queues map[string][]*Packet
 	Next            chan bool
 	NextQueueSize   int
 	NextQueueLength int
@@ -28,6 +29,7 @@ func NewExtraQueue() *ExtraQueue {
 
 	newExtraQueue := &ExtraQueue{
 		Queue:           make([]*Packet, 0),
+		//Queues: make(map[string][]*Packet),
 		Next:            make(chan bool, katyushaThreads),
 		NextQueueSize:   containerConcurrency,
 		NextQueueLength: 0,
@@ -78,6 +80,8 @@ func (q *ExtraQueue) Push(pushPacket *PushRequest) {
 	q.Next <- true
 }
 
+//pop request
+
 func (q *ExtraQueue) Pop() *Packet {
 	q.popLock.Lock()
 	defer q.popLock.Unlock()
@@ -91,6 +95,62 @@ func (q *ExtraQueue) Pop() *Packet {
 
 	return popPacket
 }
+
+
+
+
+// func (q *ExtraQueue) Pop(service string) *Packet {
+// 	q.popLock.Lock()
+// 	defer q.popLock.Unlock()
+
+// 	<-q.Next // chờ có request bất kỳ
+
+// 	q.queueLock.Lock()
+// 	queue := q.Queues[service]
+// 	if len(queue) == 0 {
+// 		q.queueLock.Unlock()
+// 		return nil
+// 	}
+
+// 	popPacket := queue[len(queue)-1]
+// 	q.HeaderModifier(popPacket)
+// 	q.Queues[service] = queue[:len(queue)-1]
+// 	q.queueLock.Unlock()
+
+// 	return popPacket
+// }
+
+
+
+
+
+// func (q *ExtraQueue) Pop() *Packet {
+// 	q.popLock.Lock()
+// 	defer q.popLock.Unlock()
+
+// 	// ====== BATCH GATE (sửa ở đây) ======
+// 	for {const MIN_QUEUE_BEFORE_POP = 3
+// 		q.queueLock.Lock()
+// 		queueLen := len(q.Queue)
+// 		q.queueLock.Unlock()
+
+// 		if queueLen >= MIN_QUEUE_BEFORE_POP {
+// 			break
+// 		}
+
+// 		<-q.Next // chờ thêm request
+// 	}
+// 	// ====== HẾT PHẦN SỬA ======
+
+// 	q.queueLock.Lock()
+// 	popPacket := q.Queue[len(q.Queue)-1]
+// 	q.HeaderModifier(popPacket)
+// 	q.Queue = q.Queue[:len(q.Queue)-1]
+// 	q.queueLock.Unlock()
+
+// 	return popPacket
+// }
+
 
 // custom this
 func (q *ExtraQueue) sort(p *Packet) {
